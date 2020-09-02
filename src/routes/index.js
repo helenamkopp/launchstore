@@ -8,13 +8,16 @@ const users = require('./users')
 
 
 routes.get('/', HomeController.index)
-
 routes.use('/products', products)
-// routes.use('/users', users)
+routes.use('/users', users)
 
 //Alias
 routes.get('/ads/create', function(req, res) { // mascara que vai redirecionar para o products create
-    return res.render("/products/create")
+    return res.redirect("/products/create")
+})
+
+routes.get('/accounts', function(req, res) { // mascara que vai redirecionar para o products create
+    return res.redirect("/users/register")
 })
 
 

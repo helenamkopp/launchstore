@@ -1,3 +1,5 @@
+const e = require("express")
+
 const Mask = {
   apply(input, func) {
     setTimeout(function() {
@@ -15,6 +17,53 @@ const Mask = {
       style: 'currency',
       currency: 'BRL'
     }).format(value/100)
+  },
+  cpfCnpj(value) {
+    value = value.replace(/\D/g, "")
+
+    if (value.length > 14)
+      value = value.slice(0, -1) // aqui ele nao permite adicionar mais digitos (na vdd ele fica tirando)
+
+    //check if is cnpj - 11.222.333/0001-11
+    if (value.length > 11) {
+      //11222333444455
+
+      //11.222333444455
+      value = value.replace(/(\d{2})(\d)/, "$1.$2")
+
+      //11.222.333444455
+      value = value.replace(/(\d{3})(\d)/, "$1.$2")
+
+      //11.222.333/444455
+      value = value.replace(/(\d{3})(\d)/, "$1/$2")
+
+      //11.222.333/4444-55
+      value = value.replace(/(\d{4})(\d)/, "$1-$2")
+
+
+    } else {
+      // cpf 111.222.333-44
+      // 111.222333-44
+      value = value.replace(/(\d{3})(\d)/, "$1.$2")
+
+      // 111.222.33344  
+      value = value.replace(/(\d{3})(\d)/, "$1.$2")
+      
+      // 111.222.333-44
+      value = value.replace(/(\d{3})(\d)/, "$1-$2")
+
+    }
+  },
+  cep(value) {
+    value = value.replace(/\D/g,"")
+
+    if (value.length > 8)
+      value = value.slice(0, -1)
+
+    value = value.replace(/(\d{5})(\d)/, "$1-$2")
+
+    return value
+
   }
 }
 
@@ -168,4 +217,52 @@ const Lightbox = {
 
   }
 }
+
+
+// const Validate = {
+//   apply(input, func) {
+//     console.log("1")
+//       Validate.clearErrors(input)
+
+//       let results = Validate[func](input.value)  
+//       input.value = results.value
+
+//       if (results.error)
+//           Validate.displayError(input, results.error)
+
+//   },
+//   displayError(input, error) {
+//     console.log("2")
+//     const div = document.createElement('div')
+//     div.classList.add('error')
+//     div.innerHTML = error
+//     input.parentNode.appendChild(div)
+
+//     input.focus()
+//   },
+//   clearErrors(input) {
+//     console.log("3")
+//     const errorDiv = input.parentNode.querySelector(".error")
+//     if (errorDiv)
+//         errorDiv.remove()
+//   },
+//   isEmail(value) {
+//     console.log("4")
+    
+//     let error = null
+
+//     const mailFormat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+
+//     if(value.match(mailFormat))
+//       console.log("5")
+//       error="Email inválido"
+
+//     return {
+//       error,
+//       value
+//     }
+//       console.log("6")
+
+//   }
+// }
 

@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap");
 
 :root {
   --primary-color: #fd961f;
@@ -207,6 +206,8 @@ form .item > div:nth-child(1) { /*primeira div dentro do item é o título*/
   margin-bottom: 8px;
 }
 
+
+form .item .input input, 
 form .item input[type="text"],
 form .item input[type="number"],
 form .item textarea,
@@ -609,4 +610,24 @@ form .item #photos-preview img {
   font-weight: bold;
 } 
 
+/* USER REGISTER */
+.user-register.container.form {
+  max-width: 500px;
 
+}
+
+/* .form input[name="email"],
+.form input[name="password"],
+.form input[name="passwordRepeat"],
+.form input[name="cpf_cnpj"], 
+.form input[name="cep"] {
+  max-width: 60%;
+} */
+
+/* VALIDATE ERRORS */
+.input .error {
+  background-color: #e74c3c;
+  padding: 4px;
+  border-radius: 4px;
+  color: white;
+}
