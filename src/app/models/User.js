@@ -1,9 +1,12 @@
 const db = require('../../config/db')
 const { hash } = require('bcryptjs')
 const { create } = require('browser-sync')
+const { update } = require('../controllers/UserController')
 
 module.exports = {
   async findOne(filters) {
+    console.log("finding")
+    console.log(filters)
     let query = "SELECT * FROM users"
 
     Object.keys(filters).map(key => {
@@ -13,15 +16,16 @@ module.exports = {
       `
 
       Object.keys(filters[key]).map(field => {
-        query = `${query} ${field} '${filters[key][field]}'`
+        query = `${query} ${field} = '${filters[key][field]}'`
       })
     })
-
+    console.log(query)
     const results = await db.query(query)
 
     return results.rows[0]
   },
   async create(data) {
+    console.log("1")
     try {
 
       const query = `
@@ -38,7 +42,7 @@ module.exports = {
 
     // hash of password (ela nao pode ir aberta, precisa ser criptografada)
       const passwordHash = await hash(data.password, 8)
-
+      console.log("2")
       const values = [
         data.name, 
         data.email, 
@@ -58,6 +62,28 @@ module.exports = {
     
 
 
+
+  },
+  async update(id, fields) {
+    let query = "UPDATE users SET"
+
+    Object.keys(fields).map((key, index, array) => {
+      if((index + 1) < array.length) {
+          query = `${query}
+          ${key} = '${fields[key]}',
+        `
+      } else {
+        // ultima iteração onde nao vou ter a virgula
+        query = `${query}
+          ${key} = '${fields[key]}'
+          WHERE id = ${id}
+        `
+      }
+    })
+
+    await db.query(query)
+
+    return
 
   }
 }

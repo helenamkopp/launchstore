@@ -21,5 +21,9 @@
 
 .messages.error {
   background-color: #e74c3c;
+}
+
+.messages.success {
+  background-color: greenyellow;
 
 }

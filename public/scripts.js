@@ -2,11 +2,10 @@ const e = require("express")
 
 const Mask = {
   apply(input, func) {
-    setTimeout(function() {
+    setTimeout(function () {
       input.value = Mask[func](input.value) // não importa qual função seja, ele vai fazer rodar de uma maneira bem dinâmica. 
 
     }, 1)
-
   },
   formatBRL(value) {
     value = value.replace(/\D/g, "")  //vai descartar tudo que é digito
@@ -16,7 +15,7 @@ const Mask = {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(value/100)
+    }).format(value / 100)
   },
   cpfCnpj(value) {
     value = value.replace(/\D/g, "")
@@ -24,56 +23,58 @@ const Mask = {
     if (value.length > 14)
       value = value.slice(0, -1) // aqui ele nao permite adicionar mais digitos (na vdd ele fica tirando)
 
-    //check if is cnpj - 11.222.333/0001-11
+
+    //check if is cpf or cnpj
     if (value.length > 11) {
-      //11222333444455
+      //cjnp - 11.222.333/4444-55
+      //initial value = 11222333444455
 
-      //11.222333444455
-      value = value.replace(/(\d{2})(\d)/, "$1.$2")
+      //11.222333444455 = 2 digits in a row
+      value = value.replace(/(\d{2})(\d)/, "$1.$2");
 
-      //11.222.333444455
-      value = value.replace(/(\d{3})(\d)/, "$1.$2")
+      //11.222.333444455 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1.$2");
 
-      //11.222.333/444455
-      value = value.replace(/(\d{3})(\d)/, "$1/$2")
+      //11.222.333/444455 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1/$2");
 
-      //11.222.333/4444-55
-      value = value.replace(/(\d{4})(\d)/, "$1-$2")
-
-
+      //11.222.333/4444-55 = 4 digits in a row
+      value = value.replace(/(\d{4})(\d)/, "$1-$2");
     } else {
-      // cpf 111.222.333-44
-      // 111.222333-44
-      value = value.replace(/(\d{3})(\d)/, "$1.$2")
+      //cpf 111.222.333-44
 
-      // 111.222.33344  
-      value = value.replace(/(\d{3})(\d)/, "$1.$2")
-      
-      // 111.222.333-44
-      value = value.replace(/(\d{3})(\d)/, "$1-$2")
+      //111.22233344 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1.$2");
 
+      //111.222.33344 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1.$2");
+
+      //111.222.333-44 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1-$2");
     }
+
+    return value;
   },
+
   cep(value) {
-    value = value.replace(/\D/g,"")
+    value = value.replace(/\D/g, "");
 
-    if (value.length > 8)
-      value = value.slice(0, -1)
+    if (value.length > 8) value = value.slice(0, -1);
 
-    value = value.replace(/(\d{5})(\d)/, "$1-$2")
+    //29216-080 = 5 digits in a row
+    value = value.replace(/(\d{5})(\d)/, "$1-$2");
 
-    return value
-
-  }
-}
+    return value;
+  },
+};
 
 const PhotosUpload = {
-  input:"",
+  input: "",
   preview: document.querySelector('#photos-preview'),
   uploadLimit: 6,
   files: [],
   handleFileInput(event) {
-    const { files: fileList } = event.target 
+    const { files: fileList } = event.target
     PhotosUpload.input = event.target
 
     if (PhotosUpload.hasLimit(event)) return
@@ -85,7 +86,7 @@ const PhotosUpload = {
       const reader = new FileReader()
 
       reader.onload = () => {
-        const image = new Image() 
+        const image = new Image()
         image.src = String(reader.result)
 
         const div = PhotosUpload.getContainer(image)
@@ -129,8 +130,8 @@ const PhotosUpload = {
     return false;
   },
 
-  getAllFiles () {
-    const dataTransfer = new ClipboardEvent("").clipboardData || new DataTransfer ()
+  getAllFiles() {
+    const dataTransfer = new ClipboardEvent("").clipboardData || new DataTransfer()
 
     PhotosUpload.files.forEach(file => dataTransfer.items.add(file))
 
@@ -154,7 +155,7 @@ const PhotosUpload = {
   getRemoveButton() {
     const button = document.createElement('i')
     button.classList.add('material-icons')
-    button.innerHTML="close"
+    button.innerHTML = "close"
     return button
   },
   removePhoto(event) {
@@ -218,51 +219,94 @@ const Lightbox = {
   }
 }
 
+const Validate = {
+  apply(input, func) {
+    console.log("1")
+    Validate.clearErrors(input)
 
-// const Validate = {
-//   apply(input, func) {
-//     console.log("1")
-//       Validate.clearErrors(input)
+    let results = Validate[func](input.value)
+    input.value = results.value
 
-//       let results = Validate[func](input.value)  
-//       input.value = results.value
+    if (results.error)
+      Validate.displayError(input, results.error)
 
-//       if (results.error)
-//           Validate.displayError(input, results.error)
+  },
+  displayError(input, error) {
+    console.log("2")
+    const div = document.createElement('div')
+    div.classList.add('error')
+    div.innerHTML = error
+    input.parentNode.appendChild(div)
 
-//   },
-//   displayError(input, error) {
-//     console.log("2")
-//     const div = document.createElement('div')
-//     div.classList.add('error')
-//     div.innerHTML = error
-//     input.parentNode.appendChild(div)
+    input.focus()
+  },
+  isEmail(value) {
+    console.log("4")
 
-//     input.focus()
-//   },
-//   clearErrors(input) {
-//     console.log("3")
-//     const errorDiv = input.parentNode.querySelector(".error")
-//     if (errorDiv)
-//         errorDiv.remove()
-//   },
-//   isEmail(value) {
-//     console.log("4")
-    
-//     let error = null
+    let error = null
 
-//     const mailFormat = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-//     if(value.match(mailFormat))
-//       console.log("5")
-//       error="Email inválido"
+    if (value.match(mailFormat))
+      console.log("5")
+    error = "Email inválido"
 
-//     return {
-//       error,
-//       value
-//     }
-//       console.log("6")
+    return {
+      error,
+      value
+    }
+  },
+  clearErrors(input) {
+    console.log("3")
+    const errorDiv = input.parentNode.querySelector(".error")
+    if (errorDiv)
+      errorDiv.remove()
+  },
+  isCpfCnpj(value) {
+    let error = null;
+    const clearValues = value.replace(/\D/g, "");
 
-//   }
-// }
+    if (clearValues.length > 11 && clearValues.length !== 14) {
+      error = "CNPJ incorreto";
+    } else if (clearValues.length < 12 && clearValues.length !== 11) {
+      error = "CPF incorreto";
+    }
+
+    return {
+      error,
+      value,
+    };
+  },
+  isCep(value) {
+    let error = null;
+    const clearValues = value.replace(/\D/g, "");
+
+    if (clearValues.length !== 8) {
+      error = "CEP incorreto";
+    }
+
+    return {
+      error,
+      value,
+    };
+  },
+  allFields(e) {
+    const items = document.querySelectorAll(
+      ".item input, .item select, .item textarea"
+    );
+
+    for (item of items) {
+      if (item.value == "") {
+        const message = document.createElement("div");
+        message.classList.add("messages");
+        message.classList.add("error");
+        message.style.position = "fixed";
+        message.innerHTML = "Todos os campos são obrigatórios.";
+        document.querySelector("body").append(message);
+
+        e.preventDefault();
+      }
+    }
+  },
+};
 

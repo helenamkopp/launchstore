@@ -17,7 +17,8 @@ routes.get('/ads/create', function(req, res) { // mascara que vai redirecionar p
 })
 
 routes.get('/accounts', function(req, res) { // mascara que vai redirecionar para o products create
-    return res.redirect("/users/register")
+    console.log("entrou em register")
+    return res.redirect("/users/login")
 })
 
 

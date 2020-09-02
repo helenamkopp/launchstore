@@ -10,12 +10,12 @@ module.exports = {
 
     return {
       day,
-      month, 
+      month,
       year,
-      hour, 
-      minutes, 
+      hour,
+      minutes,
       iso: `${year}-${month}-${day}`,
-      birthDay:  `${day}/${month}`,
+      birthDay: `${day}/${month}`,
       format: `${day}-${month}-${year}`
     }
   },
@@ -23,7 +23,56 @@ module.exports = {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(price/100)
+    }).format(price / 100)
+  },
+  formatCpfCnpj(value) {
+    value = value.replace(/\D/g, "")
+
+    if (value.length > 14)
+      value = value.slice(0, -1) // aqui ele nao permite adicionar mais digitos (na vdd ele fica tirando)
+
+
+    //check if is cpf or cnpj
+    if (value.length > 11) {
+      //cjnp - 11.222.333/4444-55
+      //initial value = 11222333444455
+
+      //11.222333444455 = 2 digits in a row
+      value = value.replace(/(\d{2})(\d)/, "$1.$2");
+
+      //11.222.333444455 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1.$2");
+
+      //11.222.333/444455 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1/$2");
+
+      //11.222.333/4444-55 = 4 digits in a row
+      value = value.replace(/(\d{4})(\d)/, "$1-$2");
+    } else {
+      //cpf 111.222.333-44
+
+      //111.22233344 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1.$2");
+
+      //111.222.33344 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1.$2");
+
+      //111.222.333-44 = 3 digits in a row
+      value = value.replace(/(\d{3})(\d)/, "$1-$2");
+    }
+
+    return value;
+  },
+  formatCep(value) {
+    value = value.replace(/\D/g, "");
+
+    if (value.length > 8) value = value.slice(0, -1);
+
+    //29216-080 = 5 digits in a row
+    value = value.replace(/(\d{5})(\d)/, "$1-$2");
+
+    return value;
   }
 }
+
 
